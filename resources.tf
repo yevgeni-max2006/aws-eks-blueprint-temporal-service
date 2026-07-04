@@ -18,7 +18,7 @@ module "kong" {
 }
 
 module "terrakube" {
-  source = "./modules/terrakube"
+  source = "./modules/temporal"
   depends_on = [module.kong]
 }
 
