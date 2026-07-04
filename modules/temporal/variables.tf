@@ -17,6 +17,7 @@ variable "db_user" {
 
 variable "db_password" {
   type      = string
+  default = "q1w2e3r4100@admin"
   sensitive = true
 }
 
