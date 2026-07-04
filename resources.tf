@@ -2,10 +2,6 @@
 ###  ---  Database Services ---  ###
 module "postgresql" {
   source = "./modules/postgresql"
-  depends_on = [
-    aws_eks_cluster.main,
-    aws_eks_node_group.main
-  ]
 
   name       = "temporal-postgres"
   username   = "temporal"
