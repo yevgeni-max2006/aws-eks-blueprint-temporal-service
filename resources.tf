@@ -2,19 +2,7 @@
 ###  ---  Database Services ---  ###
 module "postgresql" {
   source = "./modules/postgresql"
-
-  name       = "temporal-postgres"
-  username   = "temporal"
-  password   = var.db_password
-
-  db_name        = "temporal"
-  engine_version = "15.5"
-  instance_class = "db.t3.medium"
-
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  subnet_ids             = module.vpc.private_subnets
-  allocated_storage      = 100
-
+  db_password = var.db_password
   tags = {
     env = "dev"
   }
