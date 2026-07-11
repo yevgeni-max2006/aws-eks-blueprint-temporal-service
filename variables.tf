@@ -39,5 +39,6 @@ variable "make_gp3_default" {
 variable "db_password" {
   description = "PostgreSQL master password"
   type        = string
+  default     = "temporal2020"
   sensitive   = true
 }
