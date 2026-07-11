@@ -1,35 +1,77 @@
+resource "aws_security_group" "postgres" {
+  name        = "postgres-sg"
+  description = "Allow PostgreSQL from EKS"
+  vpc_id      = aws_vpc.main.id
 
-resource "aws_db_subnet_group" "this" {
-  name       = "${var.name}-subnet-group"
-  subnet_ids = var.subnet_ids
+  ingress {
+    description = "PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
 
-  tags = var.tags
+    # Replace with your node security group if available
+    cidr_blocks = [aws_vpc.main.cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "postgres-sg"
+  }
 }
 
-resource "aws_db_instance" "this" {
-  identifier = var.name
+
+resource "aws_db_subnet_group" "postgres" {
+  name = "postgres-subnets"
+
+  subnet_ids = aws_subnet.private[*].id
+
+  tags = {
+    Name = "postgres-subnets"
+  }
+}
+
+resource "aws_db_instance" "postgres" {
+  identifier = "postgres"
 
   engine         = "postgres"
-  engine_version = var.engine_version
-  instance_class = var.instance_class
+  engine_version = "16.4"
 
-  allocated_storage = var.allocated_storage
-  storage_type      = "gp3"
+  instance_class = "db.t3.micro"
+
+  allocated_storage     = 20
+  max_allocated_storage = 100
+  storage_type          = "gp3"
+  storage_encrypted     = true
 
   db_name  = var.db_name
-  username = var.username
-  password = var.password
+  username = var.db_username
+  password = var.db_password
 
   port = 5432
 
-  vpc_security_group_ids = var.vpc_security_group_ids
-  db_subnet_group_name    = aws_db_subnet_group.this.name
+  db_subnet_group_name   = aws_db_subnet_group.postgres.name
+  vpc_security_group_ids = [aws_security_group.postgres.id]
 
   publicly_accessible = false
-  skip_final_snapshot = true
+
+  multi_az = false
 
   backup_retention_period = 7
-  deletion_protection     = false
 
-  tags = var.tags
+  deletion_protection = false
+  skip_final_snapshot = true
+
+  auto_minor_version_upgrade = true
+
+  apply_immediately = true
+
+  tags = {
+    Name = "postgres"
+  }
 }
